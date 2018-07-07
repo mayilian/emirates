@@ -36,4 +36,8 @@ the content of the file. As a UI for the user it is recommended to use **Kibana*
  - Change the type of an _id field to URL and put as a URL template the following pattern: http://127.0.1.1/{{value}}
 
  If you successfully do the steps you'll be able to download the file by clicking on the value of the _id field from Kibana
+ 
+ # DISCLAIMER
+ 
+ While developing the application I kept as simple as I could becaus of my lack of time. The task has been solved conceptually (e.g. I didn't put much energy to extract some specific file type in an ideal way). Also there can be done dozens of optimizations and considerations which aren't addressed by me at this point.
 
