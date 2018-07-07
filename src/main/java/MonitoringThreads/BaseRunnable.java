@@ -10,6 +10,10 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
@@ -23,6 +27,7 @@ abstract class BaseRunnable implements Runnable {
     private boolean trace = false;
     private final String processedFolder = System.getProperty("user.dir") + File.separator + getFolderName();
     private final File processedFolderDir = new File(processedFolder);
+    private final BlockingQueue<Path /*file paths to be processed*/> filePathsQueue = new LinkedBlockingDeque<>();
 
     @SuppressWarnings("unchecked")
     private static <T> WatchEvent<T> cast(WatchEvent<?> event) {
@@ -52,6 +57,9 @@ abstract class BaseRunnable implements Runnable {
      */
     BaseRunnable(Path dir) throws IOException {
 
+        // add the files to the queue so that they can be later processed
+        Files.walk(dir).filter(Files::isRegularFile).forEach(this::storeFileAndQueueFilePath);
+
         this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<>();
 
@@ -68,6 +76,8 @@ abstract class BaseRunnable implements Runnable {
                 logger.debug("Failed to create folder for processed files: " + processedFolder);
             }
         }
+
+        startIndexing();
     }
 
     /**
@@ -102,11 +112,7 @@ abstract class BaseRunnable implements Runnable {
                 Path name = ev.context();
                 Path child = dir.resolve(name);
 
-                //storing the file
-                Path dest = new File(processedFolderDir, child.getFileName().toString()).toPath();
-                Files.move(child, dest, StandardCopyOption.REPLACE_EXISTING);
-
-                indexFileContent(dest);
+                storeFileAndQueueFilePath(child);
             }
 
             // reset key and remove from set if directory no longer accessible
@@ -143,7 +149,22 @@ abstract class BaseRunnable implements Runnable {
 
     }
 
-    abstract void indexFileContent(Path fileToIndex);
+    private void startIndexing() {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(() -> {
+            Path path = null;
+            try {
+                path = filePathsQueue.take();
+                indexFileContent(path);
+            } catch (InterruptedException e) {
+                logger.warn("Interrupted while taking a path from queue");
+            }
+        });
+
+        executorService.shutdown();
+    }
+
+    abstract void indexFileContent(Path fileToBeIndexed);
 
     abstract String getFolderName();
 
@@ -158,6 +179,22 @@ abstract class BaseRunnable implements Runnable {
             processEvents();
         } catch (IOException e) {
             logger.error("Could not process file", e);
+        }
+    }
+
+    private Path storeFile(Path file) throws IOException {
+        //storing the file
+        Path dest = new File(processedFolderDir, file.getFileName().toString()).toPath();
+        Files.move(file, dest, StandardCopyOption.REPLACE_EXISTING);
+
+        return dest;
+    }
+
+    private void storeFileAndQueueFilePath(Path filePath) {
+        try {
+            filePathsQueue.offer(storeFile(filePath));
+        } catch (IOException e) {
+            logger.error("Couldn't store the file: " + filePath);
         }
     }
 }

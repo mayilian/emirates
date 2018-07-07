@@ -57,31 +57,6 @@ public class EmailRunnable extends BaseRunnable {
 
         Email email = ((CustomContentHandler) contentHandler).getEmail();
 
-        List<Attachment> attachments =  email.getAttachments();
-
-        Attachment calendar = email.getCalendarBody();
-        String calendarString = "EMPTY";
-        if (calendar != null) {
-            StringWriter calendarWriter = new StringWriter();
-            try {
-                IOUtils.copy(calendar.getIs(), calendarWriter, "UTF-8");
-                calendarString = calendarWriter.toString();
-            } catch (IOException e) {
-                logger.warn("Couldn't extract calendar from email");
-            }
-        }
-
-        Attachment htmlBody = email.getHTMLEmailBody();
-        String htmlBodyString = "EMPTY";
-        if (htmlBody != null) {
-            StringWriter htmlBodyWriter = new StringWriter();
-            try {
-                IOUtils.copy(htmlBody.getIs(), htmlBodyWriter, "UTF-8");
-                htmlBodyString = htmlBodyWriter.toString();
-            } catch (IOException e) {
-                logger.warn("Couldn't extract htmlBody from email");
-            }
-        }
 
         Attachment plainText = email.getPlainTextEmailBody();
         String plainTextString = email.toString();
@@ -99,26 +74,25 @@ public class EmailRunnable extends BaseRunnable {
         String cc = email.getCCEmailHeaderValue();
         String from = email.getFromEmailHeaderValue();
 
+
+        List<Attachment> attachments =  email.getAttachments();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Attachment attachment : attachments) {
+            stringBuilder.append(attachment.getAttachmentName()).append(",");
+        }
+
+        if (attachments.size() > 0) {
+            stringBuilder.setLength(stringBuilder.length() - 1);
+        }
+        String attachmentNames = stringBuilder.toString();
+
         try {
-
-            StringBuilder stringBuilder = new StringBuilder();
-            for (Attachment attachment : attachments) {
-                stringBuilder.append(attachment.getAttachmentName()).append(",");
-            }
-
-            if (attachments.size() > 0) {
-                stringBuilder.setLength(stringBuilder.length() - 1);
-            }
-            String attachmentNames = stringBuilder.toString();
-
             IndexResponse response = ESTransport.ESClient.INSTANCE.getClient().prepareIndex("directory", EMAIL_DIR, getFileRelativeName(fileToIndex))
                     .setSource(jsonBuilder()
                             .startObject()
                             .field("to", to)
                             .field("cc", cc)
                             .field("from", from)
-                            .field("calendar", calendarString)
-                            .field("htmlBody", htmlBodyString)
                             .field("plainText", plainTextString)
                             .field("attachments", attachmentNames)
                             .endObject()).get();

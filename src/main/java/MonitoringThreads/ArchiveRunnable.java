@@ -24,7 +24,6 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class ArchiveRunnable extends BaseRunnable implements Runnable {
     private final static Logger logger = LogManager.getLogger(ArchiveRunnable.class);
-
     private final static String ARCHIVE_DIR = "archive";
 
     public ArchiveRunnable(Path dir) throws IOException {

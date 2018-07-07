@@ -1,3 +1,4 @@
+import ESTransport.ESClient;
 import MonitoringThreads.ArchiveRunnable;
 import MonitoringThreads.EmailRunnable;
 import MonitoringThreads.ImagesRunnable;
@@ -11,7 +12,6 @@ import java.io.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-// .zip, .jpg, .png, .csv, .doc, .pdf, .xml, .eml
 public class DirectoryWatcher {
     private final static Logger logger = LogManager.getLogger(DirectoryWatcher.class);
 
@@ -27,16 +27,31 @@ public class DirectoryWatcher {
             usage();
         }
 
+        ESClient.INSTANCE.initClient();
+
         Path dir = Paths.get(args[0]);
         ExecutorService executor = Executors.newFixedThreadPool(4);
         try {
             executor.submit(new ArchiveRunnable(dir));
-            executor.submit(new ImagesRunnable(dir));
-            executor.submit(new TextRunnable(dir));
+        } catch (IOException e) {
+            logger.error("Failed to submit task", e);
+        }
+        try {
             executor.submit(new EmailRunnable(dir));
         } catch (IOException e) {
             logger.error("Failed to submit task", e);
         }
+        try {
+            executor.submit(new ImagesRunnable(dir));
+        } catch (IOException e) {
+            logger.error("Failed to submit task", e);
+        }
+        try {
+            executor.submit(new TextRunnable(dir));
+        } catch (IOException e) {
+            logger.error("Failed to submit task", e);
+        }
+
 
         executor.shutdown();
     }

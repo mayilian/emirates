@@ -16,11 +16,11 @@ public class ESClient {
     public static final ESClient INSTANCE = new ESClient();
 
     private TransportClient client;
-    private ESClient() {
+    public void initClient() {
         try {
             client = new PreBuiltTransportClient(Settings.EMPTY).addTransportAddress(new TransportAddress(InetAddress.getByName("localhost"), 9300));
         } catch (UnknownHostException e) {
-           logger.error("Could not connect to ES", e);
+            logger.error("Could not connect to ES", e);
         }
     }
 
