@@ -15,7 +15,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
-abstract class BaseRunnable {
+abstract class BaseRunnable implements Runnable {
     private final static Logger logger = LogManager.getLogger(BaseRunnable.class);
 
     private final WatchService watcher;
@@ -73,7 +73,7 @@ abstract class BaseRunnable {
     /**
      * Process all events for keys queued to the watcher
      */
-    void processEvents() throws IOException {
+    private void processEvents() throws IOException {
         for (;;) {
             // wait for key to be signalled
             WatchKey key;
@@ -128,9 +128,10 @@ abstract class BaseRunnable {
         }
 
         try {
-            IndexResponse response = ESClient.INSTANCE.getClient().prepareIndex("failedToProcess", "archive", getFileRelativeName(failedFile))
+            IndexResponse response = ESClient.INSTANCE.getClient().prepareIndex("failedToProcess", getFolderName(), getFileRelativeName(failedFile))
                     .setSource(jsonBuilder()
                             .startObject()
+                            .field("content", "failed")
                             .endObject()).get();
 
             if (logger.isInfoEnabled()) {
@@ -142,7 +143,7 @@ abstract class BaseRunnable {
 
     }
 
-    abstract void indexFileContent(Path ESClient);
+    abstract void indexFileContent(Path fileToIndex);
 
     abstract String getFolderName();
 
@@ -151,4 +152,12 @@ abstract class BaseRunnable {
         return file.getName(nameCount - 2) + File.separator + file.getName(nameCount - 1);
     }
 
+    @Override
+    public void run() {
+        try {
+            processEvents();
+        } catch (IOException e) {
+            logger.error("Could not process file", e);
+        }
+    }
 }

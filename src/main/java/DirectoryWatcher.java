@@ -1,4 +1,7 @@
 import MonitoringThreads.ArchiveRunnable;
+import MonitoringThreads.EmailRunnable;
+import MonitoringThreads.ImagesRunnable;
+import MonitoringThreads.TextRunnable;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -28,6 +31,9 @@ public class DirectoryWatcher {
         ExecutorService executor = Executors.newFixedThreadPool(4);
         try {
             executor.submit(new ArchiveRunnable(dir));
+            executor.submit(new ImagesRunnable(dir));
+            executor.submit(new TextRunnable(dir));
+            executor.submit(new EmailRunnable(dir));
         } catch (IOException e) {
             logger.error("Failed to submit task", e);
         }
