@@ -39,5 +39,5 @@ the content of the file. As a UI for the user it is recommended to use **Kibana*
  
  # DISCLAIMER
  
- While developing the application I kept as simple as I could becaus of my lack of time. The task has been solved conceptually (e.g. I didn't put much energy to extract some specific file type in an ideal way). Also there can be done dozens of optimizations and considerations which aren't addressed by me at this point.
+ While developing the application I kept as simple as I could because of my lack of time. The task has been solved conceptually (e.g. I didn't put much energy to extract some specific file type in an ideal way nor I have done verbose error checking). Also there can be done dozens of optimizations and considerations which aren't addressed by me at this point.
 
