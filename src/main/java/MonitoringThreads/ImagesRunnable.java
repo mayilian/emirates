@@ -53,7 +53,7 @@ public class ImagesRunnable extends BaseRunnable implements Runnable {
         }
 
         try {
-            IndexResponse response = ESTransport.ESClient.INSTANCE.getClient().prepareIndex("directory", IMAGES_DIR, getFileRelativeName(fileToIndex))
+            IndexResponse response = ESTransport.ESClient.INSTANCE.getClient().prepareIndex(IMAGES_DIR, "_doc", getFileRelativeName(fileToIndex))
                     .setSource(jsonBuilder()
                             .startObject()
                             .field("content", contentHandler.toString())

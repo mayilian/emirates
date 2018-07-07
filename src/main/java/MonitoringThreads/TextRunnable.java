@@ -22,7 +22,7 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 public class TextRunnable extends BaseRunnable {
     private final static Logger logger = LogManager.getLogger(ImagesRunnable.class);
-    private final static String TEXT_DIR = "text";
+    private final static String TEXT_DIR = "txt";
 
     /**
      * Creates a WatchService and registers the given directory
@@ -52,7 +52,7 @@ public class TextRunnable extends BaseRunnable {
         }
 
         try {
-            IndexResponse response = ESTransport.ESClient.INSTANCE.getClient().prepareIndex("directory", TEXT_DIR, getFileRelativeName(fileToIndex))
+            IndexResponse response = ESTransport.ESClient.INSTANCE.getClient().prepareIndex(TEXT_DIR, "_doc", getFileRelativeName(fileToIndex))
                     .setSource(jsonBuilder()
                             .startObject()
                             .field("content", contentHandler.toString())

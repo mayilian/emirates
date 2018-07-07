@@ -87,7 +87,7 @@ public class EmailRunnable extends BaseRunnable {
         String attachmentNames = stringBuilder.toString();
 
         try {
-            IndexResponse response = ESTransport.ESClient.INSTANCE.getClient().prepareIndex("directory", EMAIL_DIR, getFileRelativeName(fileToIndex))
+            IndexResponse response = ESTransport.ESClient.INSTANCE.getClient().prepareIndex(EMAIL_DIR, "_doc", getFileRelativeName(fileToIndex))
                     .setSource(jsonBuilder()
                             .startObject()
                             .field("to", to)

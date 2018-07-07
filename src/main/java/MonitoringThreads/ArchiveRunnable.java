@@ -48,7 +48,7 @@ public class ArchiveRunnable extends BaseRunnable implements Runnable {
         }
 
         try {
-            IndexResponse response = ESClient.INSTANCE.getClient().prepareIndex("directory", ARCHIVE_DIR, getFileRelativeName(fileToIndex))
+            IndexResponse response = ESClient.INSTANCE.getClient().prepareIndex(ARCHIVE_DIR, "_doc", getFileRelativeName(fileToIndex))
                     .setSource(jsonBuilder()
                             .startObject()
                             .field("content", contentHandler.toString())

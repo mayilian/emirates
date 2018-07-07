@@ -134,7 +134,7 @@ abstract class BaseRunnable implements Runnable {
         }
 
         try {
-            IndexResponse response = ESClient.INSTANCE.getClient().prepareIndex("failedToProcess", getFolderName(), getFileRelativeName(failedFile))
+            IndexResponse response = ESClient.INSTANCE.getClient().prepareIndex("failed", "_doc", getFileRelativeName(failedFile))
                     .setSource(jsonBuilder()
                             .startObject()
                             .field("content", "failed")
@@ -152,12 +152,15 @@ abstract class BaseRunnable implements Runnable {
     private void startIndexing() {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
-            Path path = null;
-            try {
-                path = filePathsQueue.take();
-                indexFileContent(path);
-            } catch (InterruptedException e) {
-                logger.warn("Interrupted while taking a path from queue");
+            while (true) {
+                try {
+                    Path path = filePathsQueue.take();
+                    indexFileContent(path);
+
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    logger.warn("Interrupted while taking a path from queue");
+                }
             }
         });
 
