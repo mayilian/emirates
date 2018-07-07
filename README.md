@@ -4,6 +4,8 @@ This application watches a set of directories and processes the files inside the
 it in **Elasticsearch**. The file is being stored under an Apache HTTP server so that it can be downloaded while user is viewing
 the content of the file. As a UI for the user it is recommended to use **Kibana**.
 
+![quick-demo](https://github.com/mdavit/emirates/blob/master/demo.gif)
+
 # Prerequisites 
 
 - Elasticsearch 6.3
