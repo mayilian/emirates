@@ -54,5 +54,10 @@ public class DirectoryWatcher {
 
 
         executor.shutdown();
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            ESClient.INSTANCE.getClient().close();
+            logger.info("Close Transport Client.");
+        }));
     }
 }
