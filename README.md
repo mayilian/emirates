@@ -37,6 +37,8 @@ the content of the file. As a UI for the user it is recommended to use **Kibana*
  - Create an index pattern for each index (archive, images, txt, emails)
  - Change the type of an _id field to URL and put as a URL template the following pattern: http://127.0.1.1/{{value}}
 
+![alt text](https://github.com/mdavit/emirates/blob/master/url.png)
+
  If you successfully do the steps you'll be able to download the file by clicking on the value of the _id field from Kibana
  
  # DISCLAIMER
