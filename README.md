@@ -12,7 +12,7 @@ the content of the file. As a UI for the user it is recommended to use **Kibana*
 - Kibana 6.3
 - Apache HTTP server
 
-# How to run the application
+# How to run the application on Linux
 
 1. At first start the Elasticsearch service as the application uses a TransportClient which considers that there's a running Elasticsearch cluster
 
@@ -29,7 +29,7 @@ the content of the file. As a UI for the user it is recommended to use **Kibana*
   
   After doing the previous steps correctly you can test the application by putting corresponding files in the directories. e.g.
   If you put test.jpg into images directory the metadata of that image will be extracted and indexed as a document under the "images" index,
-  the _id of the document will serve the file path (relative to the current working directory). This will later allow us to download the file from Kibana UI if needed.
+  the _id of the document will be the path of the file (relative to the current working directory). This will later allow us to download the file from Kibana UI if needed.
  
  # Configure the UI
  
