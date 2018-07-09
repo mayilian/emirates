@@ -21,7 +21,7 @@ the content of the file. As a UI for the user it is recommended to use **Kibana*
    - Set the **DocumentRoot** in the */etc/apache2/sites-enabled/000-default* file to the directory where the application has to be run. In my case it is set to */home/david/IdeaProjects/emirates*
    - Set  **AllowEncodedSlashes On** in the */etc/apache2/sites-enabled/000-default*  file
 
-3. Application gets as an argument the directory path which it is going to monitor. The directory has to contain the following folders:
+3. Application gets as an argument the directory path which it is going to monitor. The directory has to contain the following folders. Plase note that the directories have to be flat, the folder hiearchy is not yet handled: 
    - archive
    - images
    - txt
