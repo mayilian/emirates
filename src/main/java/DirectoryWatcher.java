@@ -16,7 +16,7 @@ public class DirectoryWatcher {
     private final static Logger logger = LogManager.getLogger(DirectoryWatcher.class);
 
     private static void usage() {
-        System.err.println("usage: java DirectoryWatcher [-r] dir");
+        System.err.println("usage: java DirectoryWatcher dir");
         System.exit(-1);
     }
 

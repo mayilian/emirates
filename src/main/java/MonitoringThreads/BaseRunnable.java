@@ -1,6 +1,8 @@
 package MonitoringThreads;
 
 import ESTransport.ESClient;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.index.IndexResponse;
@@ -10,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -102,7 +105,6 @@ abstract class BaseRunnable implements Runnable {
             for (WatchEvent<?> event: key.pollEvents()) {
                 WatchEvent.Kind kind = event.kind();
 
-                // TBD - provide example of how OVERFLOW event is handled
                 if (kind == OVERFLOW) {
                     continue;
                 }
@@ -187,15 +189,35 @@ abstract class BaseRunnable implements Runnable {
 
     private Path storeFile(Path file) throws IOException {
         //storing the file
-        Path dest = new File(processedFolderDir, file.getFileName().toString()).toPath();
-        Files.move(file, dest, StandardCopyOption.REPLACE_EXISTING);
+        String fileName = file.getFileName().toString();
+        File destFile = new File(processedFolderDir, fileName);
+        if (destFile.exists()) {
+            boolean sameContent = FileUtils.contentEquals(file.toFile(), destFile);
+            if (sameContent) {
+                Files.delete(file);
+                return null;
+            } else {
+                String fileNameWithOutExt = FilenameUtils.removeExtension(fileName);
+                String ext = FilenameUtils.getExtension(fileName);
+                fileName = fileNameWithOutExt + UUID.randomUUID() + ext;
+                destFile = new File(processedFolderDir, fileName);
+            }
+        }
+
+        Path dest = destFile.toPath();
+        Files.move(file, destFile.toPath(), StandardCopyOption.ATOMIC_MOVE);
 
         return dest;
     }
 
     private void storeFileAndQueueFilePath(Path filePath) {
         try {
-            filePathsQueue.offer(storeFile(filePath));
+            Path path = storeFile(filePath);
+            if (path != null) {
+                filePathsQueue.offer(path);
+            } else {
+                logger.warn("Do not store, the path is null. This usually happens when the file is already processed once");
+            }
         } catch (IOException e) {
             logger.error("Couldn't store the file: " + filePath);
         }
