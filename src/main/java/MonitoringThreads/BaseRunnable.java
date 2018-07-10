@@ -3,6 +3,7 @@ package MonitoringThreads;
 import ESTransport.ESClient;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.http.util.TextUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.elasticsearch.action.index.IndexResponse;
@@ -199,7 +200,10 @@ abstract class BaseRunnable implements Runnable {
             } else {
                 String fileNameWithOutExt = FilenameUtils.removeExtension(fileName);
                 String ext = FilenameUtils.getExtension(fileName);
-                fileName = fileNameWithOutExt + UUID.randomUUID() + ext;
+                if (!TextUtils.isEmpty(ext)) {
+                    ext = "." + ext;
+                }
+                fileName = fileNameWithOutExt + "_" + UUID.randomUUID() + ext;
                 destFile = new File(processedFolderDir, fileName);
             }
         }
